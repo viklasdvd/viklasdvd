@@ -1,51 +1,402 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Unlock PC</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Windows Unlock Remote</title>
     <style>
-        body {
-            background: #0a0a0f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: system-ui;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        button {
-            background: #0078d4;
+        
+        body {
+            min-height: 100vh;
+            background: #0a0a0f;
+            background-image: radial-gradient(circle at 25% 0%, rgba(0, 120, 212, 0.08) 0%, transparent 50%),
+                              radial-gradient(circle at 75% 100%, rgba(0, 164, 239, 0.06) 0%, transparent 60%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            padding: 20px;
+        }
+        
+        .card {
+            background: rgba(18, 18, 24, 0.85);
+            backdrop-filter: blur(40px);
+            border-radius: 56px;
+            padding: 52px 44px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+            width: 380px;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 8px 16px rgba(0, 120, 212, 0.2));
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0c0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+        }
+        
+        .sub {
+            color: #8e8e9a;
+            margin-bottom: 36px;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .unlock-btn {
+            background: linear-gradient(135deg, #0078d4 0%, #0094ff 100%);
             color: white;
             border: none;
-            padding: 20px 40px;
-            font-size: 24px;
+            width: 220px;
+            padding: 16px;
             border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(0, 120, 212, 0.3);
+            letter-spacing: 0.3px;
+        }
+        
+        .unlock-btn:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #0086e8 0%, #00a0ff 100%);
+            box-shadow: 0 12px 28px rgba(0, 120, 212, 0.4);
+        }
+        
+        .unlock-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .unlock-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 28px;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .status.success {
+            color: #4cd964;
+            background: rgba(76, 217, 100, 0.1);
+        }
+        
+        .status.error {
+            color: #ff5e5e;
+            background: rgba(255, 94, 94, 0.1);
+        }
+        
+        .status.waiting {
+            color: #ffcc44;
+            background: rgba(255, 204, 68, 0.08);
+        }
+        
+        .status.sending {
+            color: #0094ff;
+            background: rgba(0, 148, 255, 0.1);
+        }
+        
+        .device-id {
+            font-size: 10px;
+            color: #5a5a66;
+            margin-top: 32px;
+            word-break: break-all;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px 14px;
+            border-radius: 40px;
+            font-family: monospace;
+            letter-spacing: 0.3px;
+        }
+        
+        .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(76, 217, 100, 0.08);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 11px;
+            color: #4cd964;
+            margin-bottom: 24px;
+        }
+        
+        hr {
+            border: none;
+            height: 0.5px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 24px 0 16px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .pulse-text {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0094ff;
+            margin-top: 16px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
-    <button id="unlockBtn">🔓 UNLOCK PC</button>
-    <script>
-        const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN'; // Нужен токен!
-        const REPO = 'viklasdvd/viklasdvd';
-        const FILE_PATH = 'index.txt';
+    <div class="card">
+        <div class="icon">💻🔓</div>
+        <h1>Windows Unlock</h1>
+        <div class="sub">Remote authorization</div>
         
-        document.getElementById('unlockBtn').addEventListener('click', async () => {
-            // Через GitHub API пишем 'true' в index.txt
-            const response = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: 'Unlock PC',
-                    content: btoa('true'),
-                    sha: 'CURRENT_FILE_SHA' // Нужно получить сначала
-                })
-            });
-            alert('Unlock signal sent!');
-        });
+        <div class="secure-badge">
+            <span>✓</span> <span>Secure signal</span>
+        </div>
+        
+        <button class="unlock-btn" id="unlockBtn">
+            🔓 UNLOCK PC
+        </button>
+        
+        <div id="status" class="status waiting pulse-text">
+            ⚡ Ready to unlock
+        </div>
+        
+        <div id="timer" class="timer" style="display: none;"></div>
+        
+        <hr>
+        <div id="deviceId" class="device-id"></div>
+        <div style="font-size: 9px; color: #3a3a44; margin-top: 12px;">
+            One-time approval • Auto-reset after 15 sec
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация
+        const REPO_OWNER = 'viklasdvd';
+        const REPO_NAME = 'viklasdvd';
+        const FILE_PATH = 'index.txt';
+        const BRANCH = 'main';
+        
+        // GitHub токен (НУЖНО СОЗДАТЬ!)
+        // Иди сюда: https://github.com/settings/tokens
+        // Выбери 'repo' -> Generate token -> Скопируй
+        const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN_HERE';  // ЗАМЕНИ НА СВОЙ ТОКЕН!
+        
+        let resetTimer = null;
+        let currentFileSha = null;
+        
+        // Генерация ID устройства
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('unlock_device_id');
+            if (!deviceId) {
+                deviceId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+                localStorage.setItem('unlock_device_id', deviceId);
+            }
+            return deviceId;
+        }
+        
+        document.getElementById('deviceId').innerHTML = `🖥️ Device: <strong>${getDeviceId().slice(0, 8)}...${getDeviceId().slice(-4)}</strong>`;
+        
+        // Получить текущий SHA файла (нужен для обновления)
+        async function getCurrentFileSha() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.sha;
+                } else if (response.status === 404) {
+                    // Файл не существует, создадим
+                    return null;
+                } else {
+                    console.error('Failed to get SHA:', response.status);
+                    return null;
+                }
+            } catch (err) {
+                console.error('Error getting SHA:', err);
+                return null;
+            }
+        }
+        
+        // Записать содержимое в index.txt
+        async function writeToFile(content) {
+            try {
+                // Получаем актуальный SHA перед записью
+                const sha = await getCurrentFileSha();
+                
+                const body = {
+                    message: `Set unlock signal to: ${content}`,
+                    content: btoa(content),  // base64 encode
+                    branch: BRANCH
+                };
+                
+                if (sha) {
+                    body.sha = sha;
+                }
+                
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentFileSha = data.content.sha;
+                    return true;
+                } else {
+                    const error = await response.json();
+                    console.error('GitHub API error:', error);
+                    return false;
+                }
+            } catch (err) {
+                console.error('Write error:', err);
+                return false;
+            }
+        }
+        
+        // Установить сигнал true
+        async function setUnlockSignal() {
+            const btn = document.getElementById('unlockBtn');
+            const statusDiv = document.getElementById('status');
+            const timerDiv = document.getElementById('timer');
+            
+            btn.disabled = true;
+            btn.innerText = '⏳ SENDING SIGNAL...';
+            statusDiv.innerText = '📡 Sending unlock signal to GitHub...';
+            statusDiv.className = 'status sending';
+            
+            const success = await writeToFile('true');
+            
+            if (success) {
+                statusDiv.innerText = '✅ SIGNAL SENT! PC WILL UNLOCK SOON.';
+                statusDiv.className = 'status success';
+                btn.innerText = '✓ SIGNAL SENT';
+                
+                // Показываем таймер автосброса
+                timerDiv.style.display = 'block';
+                let secondsLeft = 15;
+                timerDiv.innerText = `Auto-reset in: ${secondsLeft}s`;
+                
+                // Устанавливаем таймер на сброс через 15 секунд
+                resetTimer = setInterval(async () => {
+                    secondsLeft--;
+                    timerDiv.innerText = `Auto-reset in: ${secondsLeft}s`;
+                    
+                    if (secondsLeft <= 0) {
+                        clearInterval(resetTimer);
+                        timerDiv.style.display = 'none';
+                        await setFalseSignal();
+                    }
+                }, 1000);
+                
+                // Через 20 секунд активируем кнопку снова (на случай если нужно ещё раз)
+                setTimeout(() => {
+                    if (btn.disabled) {
+                        btn.disabled = false;
+                        btn.innerText = '🔓 UNLOCK PC';
+                        statusDiv.innerText = '⚡ Ready to unlock again';
+                        statusDiv.className = 'status waiting pulse-text';
+                    }
+                }, 20000);
+            } else {
+                statusDiv.innerText = '❌ FAILED TO SEND SIGNAL. Check token.';
+                statusDiv.className = 'status error';
+                btn.disabled = false;
+                btn.innerText = '🔓 UNLOCK PC';
+                
+                setTimeout(() => {
+                    if (statusDiv.innerText.includes('FAILED')) {
+                        statusDiv.innerText = '⚡ Ready to unlock';
+                        statusDiv.className = 'status waiting pulse-text';
+                    }
+                }, 5000);
+            }
+        }
+        
+        // Сбросить сигнал на false
+        async function setFalseSignal() {
+            console.log('Auto-resetting signal to false...');
+            const statusDiv = document.getElementById('status');
+            const timerDiv = document.getElementById('timer');
+            
+            const success = await writeToFile('false');
+            
+            if (success) {
+                console.log('Signal reset to false');
+                timerDiv.style.display = 'none';
+                if (statusDiv.innerText.includes('SENT') || statusDiv.innerText.includes('PC WILL UNLOCK')) {
+                    statusDiv.innerText = '⚡ Signal auto-reset. Ready for next unlock.';
+                    statusDiv.className = 'status waiting';
+                    setTimeout(() => {
+                        if (statusDiv.innerText.includes('auto-reset')) {
+                            statusDiv.innerText = '⚡ Ready to unlock';
+                            statusDiv.className = 'status waiting pulse-text';
+                        }
+                    }, 3000);
+                }
+            } else {
+                console.error('Failed to reset signal to false');
+            }
+        }
+        
+        // Проверка токена при загрузке
+        async function checkToken() {
+            if (GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE') {
+                document.getElementById('status').innerHTML = '⚠️ CONFIGURE GITHUB_TOKEN FIRST!';
+                document.getElementById('status').className = 'status error';
+                document.getElementById('unlockBtn').disabled = true;
+            }
+        }
+        
+        // Назначить обработчик кнопки
+        document.getElementById('unlockBtn').addEventListener('click', setUnlockSignal);
+        
+        // Проверить конфигурацию
+        checkToken();
     </script>
 </body>
 </html>
